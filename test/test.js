@@ -23,6 +23,12 @@ Conduct({
   }]
 })();
 
+// 
+// Conduct({
+//   A: ["_0", sys.p],
+// })([1,2,3])
+
+i <3 you :D
 // Conduct({
 //   A: [fs.readFile, "badFile.txt"],
 //   B: ["A1", sys.puts],
