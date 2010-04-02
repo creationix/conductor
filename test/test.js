@@ -1,10 +1,10 @@
 require.paths.unshift(__dirname + "/../lib");
-var Compose = require('composer');
+var Conduct = require('conductor');
 var fs = require('fs');
 var sys = require('sys');
 
 
-Compose({
+Conduct({
   A: [function(callback) {
     process.nextTick(function () {
       callback("a1", "a2");
@@ -23,25 +23,25 @@ Compose({
   }]
 })();
 
-// Compose({
+// Conduct({
 //   A: [fs.readFile, "badFile.txt"],
 //   B: ["A1", sys.puts],
 //   E: ["A0", sys.p]
 // })()
 // 
-// Compose({
+// Conduct({
 //   A: [fs.readFile, __filename],
 //   B: ["A1", sys.puts],
 //   E: ["A0", sys.error]
 // })()
 
-// Compose({
+// Conduct({
 //   A: ["_0", fs.readFile],
 //   B: ["A1", sys.puts],
 //   E: ["A0", sys.error]
 // })(__filename)
 // 
-// Compose({
+// Conduct({
 //   A: ["_0", fs.readFile],
 //   B: ["A1", function (text, callback) {
 //     process.nextTick(function () {
