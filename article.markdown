@@ -97,40 +97,53 @@ You'll notice in these patterns that there is a fair bit of hacks to fit the cas
 
 ## Conductor is born!
 
-Last night while talking with [tmpvar][](Elijah Insua) we decided it would great to make a system that would calculate arbitrary dependencies and flows and manage it all automatically.  A few productive hours later [conductor][] was born.
+Last night while talking with [tmpvar][](Elijah Insua), we decided it would be great to make a system that could calculate arbitrary control flows when given a set of dependencies.  A few productive hours later [conductor][] was born.
 
-Instead of shoehorning a problem into a preset pattern to make it easier on the computer, why don't we just explain the problem to the computer and let it figure out how to handle it?
+Instead of shoe-horning a problem into a preset pattern to make it easier on the computer, why don't we just explain the problem to the computer and let it figure out how to handle it for us?
 
 ### Loading an Article
 
 The example from above that uses `Step` could be rewritten to use `Conduct` (the function exported by the [conductor][] library):
 
     var loadArticle = Conduct({
-      M: ["_0", function readFile(name, callback) {
-        Git.readFile(path.join("articles", name + ".markdown"), callback);
+      P: ["_0", function loadProps(name, callback) {
+        var filename = path.join("articles", name + ".markdown");
+        Git.readFile(filename, function (err, markdown) {
+          if (err) {
+            return callback(err);
+          }
+          var props = markdownPreParse(markdown);
+          props.name = name;
+          callback(undefined, props);
+        });
       }],
-      E: ["_"]
-    })
+      A: ["P1", function loadAuthor(props, callback) {
+        loadAuthor(props.author, callback);
+      }],
+      F: ["P1", "A1", function (props, author, callback) {
+        props.author = author;
+        callback(undefined, props);
+      }]
+    }, "F1");
 
-function loadArticle(name, callback) {
-  
-  var props;
-  Step(
-    function readFile() {
-      Git.readFile(path.join("articles", name + ".markdown"), this);
-    },
-    function getAuthor(err, markdown) {
-      if (err) return callback(err);
-      props = markdownPreParse(markdown);
-      props.name = name;
-      loadAuthor(props.author, this);
-    },
-    function finish(err, author) {
-      props.author = author;
-      callback(null, props);
+    function loadArticle(name, callback) {
+      var props;
+      Step(
+        function readFile() {
+          Git.readFile(path.join("articles", name + ".markdown"), this);
+        },
+        function getAuthor(err, markdown) {
+          if (err) return callback(err);
+          props = markdownPreParse(markdown);
+          props.name = name;
+          loadAuthor(props.author, this);
+        },
+        function finish(err, author) {
+          props.author = author;
+          callback(null, props);
+        }
+      );
     }
-  );
-}
 
 
 
