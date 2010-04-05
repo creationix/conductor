@@ -4,14 +4,14 @@ var fs = require('fs');
 var sys = require('sys');
 
 // Generic output debugger to show the result of the functions
-function outputHandler(err, output) {
+function outputHandler(message) { return function callback(err, output) {
+  sys.error("\n" + message);
   if (err) {
-    sys.error("\nAn error was reported");
     sys.error(err.stack + "\n");
-    return;
+  } else {
+    sys.error("Success: " + sys.inspect(output));
   }
-  sys.error("Success: " + sys.inspect(output));
-}
+}}
 
 // Example with mixed sync and async performers
 var processFile = Conduct({
@@ -26,9 +26,9 @@ var processFile = Conduct({
 }, "B1");
 
 // Should output some data
-processFile("test", outputHandler);
+processFile("test", outputHandler("processFile"));
 // Should report the caught async error
-processFile("I don't exist!", outputHandler);
+processFile("I don't exist!", outputHandler("processFile-ERROR"));
 
 
 
