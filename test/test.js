@@ -70,21 +70,24 @@ processFileSync("I don't exist", outputHandler("processFileSync-ERROR"));
 var simpleCase = Conduct({
   A: [function(callback) {
     process.nextTick(function () {
-      callback("a1", "a2");
+      callback(undefined, "a1", "a2");
     });
   }],
-  B: ["A1", function (input, callback) {
+  B: ["A2", function (input, callback) {
     process.nextTick(function () {
-      callback(input + "modified");
+      callback(undefined, input + "modified");
     });
   }],
-  C: ["A0","B0", function (input1, input2, callback) {
-    sys.p({
+  C: ["A1","B1", function (input1, input2, callback) {
+    return {
       input1: input1,
       input2: input2
-    });
+    };
   }]
-});
+}, "C1");
+
+
+simpleCase(outputHandler("simpleCase"));
 
 // // Same example but without using Conductor.
 // // Note the level of error handling done automatically by Conductor.
