@@ -106,44 +106,34 @@ Instead of shoe-horning a problem into a preset pattern to make it easier on the
 The example from above that uses `Step` could be rewritten to use `Conduct` (the function exported by the [conductor][] library):
 
     var loadArticle = Conduct({
-      P: ["_0", function loadProps(name, callback) {
+      M: ["_1", function (name, callback) {
         var filename = path.join("articles", name + ".markdown");
-        Git.readFile(filename, function (err, markdown) {
-          if (err) {
-            return callback(err);
-          }
+        Git.readFile(filename, callback);
+      }],
+      P: ["_1", "M1", function (name, markdown) {
           var props = markdownPreParse(markdown);
           props.name = name;
-          callback(undefined, props);
+          return props;
         });
       }],
       A: ["P1", function loadAuthor(props, callback) {
         loadAuthor(props.author, callback);
       }],
-      F: ["P1", "A1", function (props, author, callback) {
+      F: ["P1", "A1", function (props, author) {
         props.author = author;
-        callback(undefined, props);
+        return props;
       }]
     }, "F1");
 
-    function loadArticle(name, callback) {
-      var props;
-      Step(
-        function readFile() {
-          Git.readFile(path.join("articles", name + ".markdown"), this);
-        },
-        function getAuthor(err, markdown) {
-          if (err) return callback(err);
-          props = markdownPreParse(markdown);
-          props.name = name;
-          loadAuthor(props.author, this);
-        },
-        function finish(err, author) {
-          props.author = author;
-          callback(null, props);
-        }
-      );
-    }
+At first glance this looks like a classic case of over-engineering.  For this simple case you'd be right, but we're keeping it simple for purposes of explanation.
+
+The "`Conduct`" function takes an object hash of "performers" as it's input and outputs a single composed function that automatically runs the "performers" inside it.  A performer is a function in the traditional sense.  It takes in some values and outputs some values.  The hash key is the short name for the function, and the short strings before the function definition are the data sources for the function arguments.
+
+In this example `"_1"` means that the `M` performer needs the first argument to the loadArticle function that gets generated.  This is the article name.  It is given a special callback as it's last argument that hooks into the Conductor framework for you.  We kick off the async call to `Git.readFile` and supply it with the provided callback.  The output of M is the same as the output of Git.readFile.
+
+In the next performer `P` we need the same name argument from the outer function as well as the first output of `M`. This performer doesn't do any async work, so it can simply return the value after calculating it.  Conduct works just fine with sync or async functions.  Actually internally sync returns are converted to async functions by wrapping them in a `process.nextTick` that calls the callback for you.
+
+Note here that we don't see any mention of the 0th argument to the async callbacks.  They are automatically stripped away and handled by the framework for us so we don't have to repeat the same three lines of error checking at the top of every function.
 
 
 
