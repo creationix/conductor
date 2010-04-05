@@ -49,7 +49,7 @@ var processFileSync = Conduct({
     var filename = name + ".js";
     return fs.readFileSync(filename);
   }],
-  // Process the file (SYNC), catches the error from A
+  // Process the file (SYNC)
   B: ["_1", "A1", function (name, text) {
     return {name: name, code: 200, message: text.substr(0, 100).split(/\s/g)};
   }],
