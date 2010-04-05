@@ -21,10 +21,7 @@ var processFile = Conduct({
     fs.readFile(filename, callback);
   }],
   // Process the file (SYNC)
-  B: ["A0", "_1", "A1", function (err, name, text) {
-    if (err) {
-      return {name: name, code: 404, message: "File missing"};
-    }
+  B: ["_1", "A1", function (name, text) {
     return {name: name, code: 200, message: text.substr(0, 100).split(/\s/g)};
   }],
 }, "B1");
