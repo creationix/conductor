@@ -63,6 +63,8 @@ processFile("I don't exist!", outputHandler("processFile-ERROR"));
 processFileSafe("I don't exist!", outputHandler("processFileSafe"));
 // Should output some data
 processFileSync("test", outputHandler("processFileSync"));
+// Should report the caught sync exception
+processFileSync("I don't exist", outputHandler("processFileSync-ERROR"));
 
 
 var simpleCase = Conduct({
