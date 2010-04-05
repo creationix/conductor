@@ -26,10 +26,28 @@ var processFile = Conduct({
   }],
 }, "B1");
 
+// Example with mixed sync and async performers
+var processFileSafe = Conduct({
+  // Load the file (ASYNC)
+  A: ["_1", function (name, callback) {
+    var filename = name + ".js";
+    fs.readFile(filename, callback);
+  }],
+  // Process the file (SYNC)
+  B: ["A0", "_1", "A1", function (err, name, text) {
+    if (err) {
+      return {name: name, code: 404, message: "File missing"};
+    }
+    return {name: name, code: 200, message: text.substr(0, 100).split(/\s/g)};
+  }],
+}, "B1");
+
 // Should output some data
 processFile("test", outputHandler("processFile"));
 // Should report the caught async error
 processFile("I don't exist!", outputHandler("processFile-ERROR"));
+// Should thow an error internally, but catch it in the internal logic.
+processFileSafe("I don't exist!", outputHandler("processFileSafe"));
 
 
 
