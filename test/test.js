@@ -16,11 +16,12 @@ function outputHandler(message) { return function callback(err, output) {
 // Example with mixed sync and async performers
 var processFile = Conduct({
   // Load the file (ASYNC)
-  A: ["_0", function (name, callback) {
-    fs.readFile(name + ".js", callback);
+  A: ["_1", function (name, callback) {
+    var filename = name + ".js";
+    fs.readFile(filename, callback);
   }],
   // Process the file (SYNC)
-  B: ["_0", "A1", function (name, text) {
+  B: ["_1", "A1", function (name, text) {
     return {name: name, contents: text.substr(0, 100).split(/\s/g)};
   }],
 }, "B1");
